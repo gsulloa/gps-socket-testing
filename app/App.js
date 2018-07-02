@@ -20,6 +20,10 @@ export default class App extends React.Component {
       this.getLocationAsync();
     }
   }
+  componentWillUnmount() {
+    console.log('clearing interval')
+    clearInterval(this.getLocationInterval)
+  }
 
   getLocationAsync = async () => {
     let { status } = await Permissions.askAsync(Permissions.LOCATION);
@@ -28,9 +32,10 @@ export default class App extends React.Component {
         errorMessage: 'Permission to access location was denied',
       });
     }
-
-    let location = await Location.getCurrentPositionAsync({});
-    this.setState({ location });
+    this.getLocationInterval = setInterval(async () => {
+      const location = await Location.getCurrentPositionAsync({});
+      this.setState({ location });
+    },500);
   };
   connectToSocket = async () => {
     const url = `http://${this.state.socketUrl}`
